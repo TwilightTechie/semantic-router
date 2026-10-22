@@ -29,6 +29,22 @@ Protection then holds each named agent on its own model inside the session,
 and requests without the header keep the session or conversation key. The
 agent header is optional, has no default, and is never required.
 
+### Codex CLI parent and review-child identity
+
+Codex CLI 0.163.0 sends flat `session-id` and `thread-id` headers. On the
+parent thread they are equal; a review child keeps its parent's `session-id`
+and sends its own `thread-id`. Configure Router Learning protection with
+`scope: session`, `identity.headers.session: session-id`, and
+`identity.headers.agent: thread-id` to give each thread its own model pin.
+The parent also sends the agent header; it does not use the session-only key.
+
+A local check through the standalone Router verified parent and review-child
+tool continuations, a resumed parent turn, and the parent after review. Without
+the agent mapping, the review child inherited the parent's model. The check
+used scripted Responses backends; it does not establish model quality, prefix
+cache reuse, compaction behavior, or Redis-backed state persistence. Disable
+unsupported tools as described in [Protocol compatibility](../installation/protocol-compatibility.md#codex-cli).
+
 Replay uses the same configured session and conversation header names when that
 explicit identity is available. Recording a conversation ID does not change the
 protection scope or reset model ownership under session scope.

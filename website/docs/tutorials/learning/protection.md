@@ -97,6 +97,35 @@ main agent keeps its session key and each subagent gets its own. A subagent is
 held on the model chosen for its first request, under the same rules as a
 session. Without `agent`, protection behaves as before.
 
+### Codex CLI identity
+
+For Codex CLI 0.163.0, use session scope and map both native identity headers:
+
+```yaml
+global:
+  router:
+    learning:
+      enabled: true
+      adaptation:
+        enabled: false
+      protection:
+        enabled: true
+        scope: session
+        identity:
+          headers:
+            session: session-id
+            agent: thread-id
+```
+
+The parent sends its own thread ID in both headers. A review child shares the
+session ID but has a different thread ID, so it establishes a separate model
+pin. Omitting `agent` makes both threads share the session pin. This protects
+eligible model choices, not cache residency; idle timeout, bypass, candidate
+exclusion and qualified rescue still follow the rules above.
+
+See [Session identification](../../api/session-identification.md#codex-cli-parent-and-review-child-identity)
+and the [Codex protocol settings](../../installation/protocol-compatibility.md#codex-cli).
+
 ## Guards
 
 Protection has two guard points:
